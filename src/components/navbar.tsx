@@ -1,17 +1,10 @@
-import { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
 import "./navbar.css";
+import { useAuth } from "../hooks/useAuth";
 
 function Navbar() {
-  const authContext = useContext(AuthContext);
+  const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
-
-  if (!authContext) {
-    throw new Error("Navbar must be used within AuthProvider");
-  }
-
-  const { user, isAuthenticated, logout } = authContext;
 
   const handleLogout = () => {
     logout();

@@ -1,6 +1,7 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
+import { useFormInput } from "../hooks/useFormInput";
 
 interface FormErrors {
   name?: string;
@@ -8,34 +9,23 @@ interface FormErrors {
   password?: string;
 }
 
-function Signup() {
-  const authContext = useContext(AuthContext);
+const Signup = () => {
+  const { signup } = useAuth();
   const navigate = useNavigate();
-  if (!authContext) {
-    throw new Error("Signup must be used within AuthProvider");
-  }
-
-  const [formdata, setFormdata] = useState({
-    name: "",
-    email: "",
-    password: ""
-  });
+  const name = useFormInput();
+  const email = useFormInput();
+  const password = useFormInput();
   const [errors, setErrors] = useState<FormErrors>({});
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {name, value} = e.target;
-    setFormdata((prev) => ({...prev, [name]: value}));
-  }
 
   const validateForm = () => {
     const errors: FormErrors = {};
-    if (!formdata.name) {
+    if (!name.value) {
       errors.name = "Name is required"
     }
-    if (!formdata.email) {
+    if (!email.value) {
       errors.email = "Email is required"
     }
-    if (!formdata.password) {
+    if (!password.value) {
       errors.password = "Password is required"
     }
     return errors;
@@ -48,7 +38,7 @@ function Signup() {
     if (Object.keys(validationErros).length > 0) {
       setErrors(validationErros);
     } else {
-      authContext.signup(formdata.name, formdata.email, formdata.password).then(() => {
+      signup(name.value, email.value, password.value).then(() => {
         navigate("/todos");
       }).catch((error) => {
         console.error("Signup failed:", error);
@@ -67,17 +57,17 @@ function Signup() {
           <form onSubmit={handleSubmit} className="form">
             <div className="form-group">
               <label className="form-label" htmlFor="email">Name</label>
-              <input type="text" id="name" name="name" value={formdata.name} onChange={handleChange} />
+              <input type="text" id="name" name="name" value={name.value} onChange={name.handleChange} />
               {errors.name && <p>{errors.name}</p>}
             </div>
             <div className="form-group">
               <label className="form-label" htmlFor="email">Email</label>
-              <input type="email" id="email" name="email" value={formdata.email} onChange={handleChange} />
+              <input type="email" id="email" name="email" value={email.value} onChange={email.handleChange} />
               {errors.email && <p>{errors.email}</p>}
             </div>
             <div className="form-group">
               <label className="form-label" htmlFor="password">Password</label>
-              <input type="password" id="password" name="password" value={formdata.password} onChange={handleChange} />
+              <input type="password" id="password" name="password" value={password.value} onChange={password.handleChange} />
               {errors.password && <p>{errors.password}</p>}
             </div>
             <button type="submit">Sign Up</button>
