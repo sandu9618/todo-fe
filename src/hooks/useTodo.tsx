@@ -1,34 +1,43 @@
 import { useEffect, useState } from "react";
 import type Todo from "../components/todo";
-import api from "../intercepter/axiosInstance";
+import type { User } from "../types/user";
+import { todoService } from "../services/todo";
+import { userService } from "../services/user";
 
 export const useTodo = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    api.get('/todos').then((response) => {
-      let data = response.data.map((todo: any) => ({id: todo._id, title: todo.title, completed: todo.completed}));
+    todoService.getTodos().then((response) => {
+      let data = response.map((todo: any) => ({id: todo._id, title: todo.title, completed: todo.completed}));
       setTodos(data);
     }).catch((error) => {
       console.error('Error fetching todos:', error);
     });
+    userService.getUsers().then((response) => {
+      let data = response.map((user: any) => ({id: user._id, name: user.name, email: user.email, role: user.role}));
+      setUsers(data);
+    }).catch((error) => {
+      console.error('Error fetching users:', error);
+    });
   }, []);
 
   const handleAddTodo = (title: string) => {
-    api.post('/todos', { title }).then((response) => {
-      setTodos([...todos, response.data]);
+    todoService.createTodo(title).then((response) => {
+      setTodos([...todos, response]);
     }).catch((error) => {
       console.error('Error adding todo:', error);
     });
   }
 
   const handleToggleTodo = (id: string) => {
-    api.put(`/todos/${id}`, { completed: !todos.find((todo) => todo.id === id)?.completed }).then((response) => {
-      setTodos(todos.map((todo) => todo.id === id ? {id: response.data._id, title: response.data.title, completed: response.data.completed} : todo));
+    todoService.updateTodo(id, !todos.find((todo) => todo.id === id)?.completed).then((response) => {
+      setTodos(todos.map((todo) => todo.id === id ? {id: response._id, title: response.title, completed: response.completed} : todo));
     }).catch((error) => {
       console.error('Error toggling todo:', error);
     });
   }
 
-  return { todos, handleAddTodo, handleToggleTodo };
+  return { todos, users, handleAddTodo, handleToggleTodo };
 }
