@@ -39,5 +39,12 @@ export const useTodo = () => {
     });
   }
 
-  return { todos, users, handleAddTodo, handleToggleTodo };
+  const handleChangeUser = (userId: string) => {
+    todoService.getTodosByUserId(userId).then((response) => {
+      let data = response.map((todo: any) => ({id: todo._id, title: todo.title, completed: todo.completed}));
+      setTodos(data);
+    });
+  }
+
+  return { todos, users, handleAddTodo, handleToggleTodo, handleChangeUser };
 }

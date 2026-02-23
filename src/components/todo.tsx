@@ -1,3 +1,4 @@
+import { useAuth } from "../hooks/useAuth";
 import { useFormInput } from "../hooks/useFormInput";
 import { useTodo } from "../hooks/useTodo";
 
@@ -9,18 +10,19 @@ interface Todo {
 
 function Todo() {
   const title = useFormInput();
-  const { todos, users, handleAddTodo, handleToggleTodo } = useTodo();
-  
+  const { todos, users, handleAddTodo, handleToggleTodo, handleChangeUser } = useTodo();
+  const { role } = useAuth();
+
   return (
     <div>
       <h2>Todo</h2>
-      {users.map((user) => (
-        <div key={user.id} className="row">
-          <h3>{user.name}</h3>
-          <p>{user.email}</p>
-          <p>{user.role}</p>
-        </div>
-      ))}
+      {role === "ADMIN" && (
+      <select name="user" id="user" onChange={(e) => handleChangeUser(e.target.value)}>
+        {users.map((user) => (
+          <option key={user.id} value={user.id}>{user.name}</option>
+        ))}
+      </select>
+      )}
       {todos.map((todo) => (
         <div key={todo.id} className="row">
           <h3>{todo.title}</h3>

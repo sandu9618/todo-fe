@@ -12,5 +12,9 @@ export const todoService = {
   updateTodo: async (id: string, completed: boolean) => {
     const response = await api.put(`/todos/${id}`, { completed });
     return response.data;
+  },
+  getTodosByUserId: async (userId: string) => {
+    const response = await api.get(`/todos/${userId}`);
+    return response.data;
   }
 }
